@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar" :class="{ collapsed }">
     <div class="sidebar-logo">
-      <div class="logo-icon">🌤️</div>
+      <img src="../assets/img/bmkg.png" alt="BMKG Logo" class="img-logo" />
       <transition name="fade">
         <div v-if="!collapsed" class="logo-text">
           <div class="logo-title">BMKG</div>
@@ -87,11 +87,16 @@ function handleLogout() {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px 16px;
+  padding: 16px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
   position: relative;
 }
-.logo-icon { font-size: 1.8rem; flex-shrink: 0; }
+.img-logo {
+  width: 40px;
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
 .logo-text { flex: 1; min-width: 0; }
 .logo-title { font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: 0.05em; }
 .logo-sub { font-size: 0.7rem; color: rgba(255,255,255,0.55); font-weight: 500; white-space: nowrap; }

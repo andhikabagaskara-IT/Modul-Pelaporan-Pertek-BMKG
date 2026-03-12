@@ -20,7 +20,16 @@
             <div class="detail-row"><div class="detail-label">Tgl Rusak</div><div class="detail-val">{{ formatDate(form.tanggalRusak) }}</div></div>
             <div class="detail-row"><div class="detail-label">Tgl Perbaikan</div><div class="detail-val">{{ formatDate(form.tanggalPerbaikan) }}</div></div>
             <div class="detail-row"><div class="detail-label">Pelapor</div><div class="detail-val">{{ form.namaPelapor }}</div></div>
-            <div class="detail-row"><div class="detail-label">Teknisi</div><div class="detail-val">{{ form.teknisi.join(', ') }}</div></div>
+            <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Teknisi</div>
+              <div class="detail-val">
+                <div class="d-flex gap-2" style="flex-wrap:wrap; margin-top:6px">
+                  <div class="teknisi-badge" v-for="tn in form.teknisi" :key="tn">
+                    <img :src="getTeknisiPhoto(tn)" />
+                    <span>{{ tn.split(',')[0] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="detail-row"><div class="detail-label">Ketua Tim</div><div class="detail-val">{{ form.ketuaTim }}</div></div>
             <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Kondisi Awal</div><div class="detail-val">{{ form.kondisiAwal }}</div></div>
             <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Tindakan</div><div class="detail-val">{{ form.tindakan }}</div></div>
@@ -38,6 +47,8 @@
         </div>
       </div>
     </div>
+
+    <TambahTeknisiModal :show="showTeknisiModal" @close="showTeknisiModal=false" @save="onSaveTeknisi" />
 
     <div v-if="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
 
@@ -88,11 +99,12 @@
 
           <!-- Teknisi -->
           <div class="form-group">
-            <label class="form-label">Teknisi (1-5 orang)</label>
+            <label class="form-label">Teknisi (1-5 orang) <button type="button" class="btn btn-xs btn-outline" style="margin-left:8px" @click="showTeknisiModal = true">+ Tambah Baru</button></label>
             <div class="check-group">
-              <label class="check-item" :class="{selected: form.teknisi.includes(t)}" v-for="t in TEKNISI_LIST" :key="t">
-                <input type="checkbox" :value="t" v-model="form.teknisi" :disabled="form.teknisi.length>=5 && !form.teknisi.includes(t)" />
-                {{ t.split(',')[0] }}
+              <label class="check-item" :class="{selected: form.teknisi.includes(t.name)}" v-for="t in teknisiStore.teknisiList" :key="t.name">
+                <input type="checkbox" :value="t.name" v-model="form.teknisi" :disabled="form.teknisi.length>=5 && !form.teknisi.includes(t.name)" />
+                <img :src="t.photo" class="teknisi-photo" />
+                <span>{{ t.name.split(',')[0] }}</span>
               </label>
             </div>
           </div>
@@ -143,17 +155,26 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePerbaikanStore } from '../stores/perbaikanStore'
-import { KATEGORI_LIST, SITE_LIST, TEKNISI_LIST, KETUA_TIM_LIST } from '../data/masterData'
+import { useTeknisiStore } from '../stores/teknisiStore'
+import TambahTeknisiModal from '../components/TambahTeknisiModal.vue'
+import { KATEGORI_LIST, SITE_LIST, KETUA_TIM_LIST } from '../data/masterData'
 
 const router = useRouter()
 const store = usePerbaikanStore()
+const teknisiStore = useTeknisiStore()
 const showPreview = ref(false)
+const showTeknisiModal = ref(false)
 const successMsg = ref('')
 const fileRef = ref(null)
 const customSite = ref(false)
+
+function onSaveTeknisi(t) {
+  teknisiStore.addTeknisi(t)
+  showTeknisiModal.value = false
+}
 
 const form = reactive({
   kategori: '', site: '', customSiteName: '',
@@ -164,6 +185,10 @@ const form = reactive({
 })
 
 function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}) }
+function getTeknisiPhoto(name) {
+  const t = teknisiStore.teknisiList.find(x => x.name === name)
+  return t ? t.photo : 'https://ui-avatars.com/api/?name=' + name.split(' ')[0]
+}
 function onSiteChange() { customSite.value = form.site === '__custom__' }
 function onFileChange(e) { const f = e.target.files[0]; if (f) processFile(f) }
 function onDrop(e) { const f = e.dataTransfer.files[0]; if (f) processFile(f) }

@@ -9,7 +9,7 @@ export const usePerbaikanStore = defineStore('perbaikan', () => {
       id: nextId++, kategori: 'Radar cuaca', site: 'Gedung Observasi',
       namaAlat: 'Radar Cuaca Doppler', merk: 'EEC', tipe: 'DWSR-2001C', sn: 'EEC20210001',
       tanggalRusak: '2024-05-20', tanggalPerbaikan: '2024-05-22',
-      namaPelapor: 'Ahmad Fauzan, S.T.', teknisi: ['Budi Santoso, S.T.'],
+      namaPelapor: 'Ahmad Fauzan, S.T.', teknisi: ['SHOWAN BANGKIT SUSENA, S.Tr.Inst'],
       ketuaTim: 'Dr. Bambang Setiawan, S.T., M.T.',
       kondisiAwal: 'Transmitter tidak berfungsi',
       tindakan: 'Penggantian komponen fuse dan reset sistem',

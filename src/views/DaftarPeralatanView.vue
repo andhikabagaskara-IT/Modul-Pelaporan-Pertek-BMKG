@@ -91,7 +91,7 @@
                 <td colspan="12" class="text-center text-muted" style="padding:32px">Tidak ada data peralatan</td>
               </tr>
               <tr v-for="(item, i) in currentData" :key="item.id">
-                <td>{{ i + 1 }}</td>
+                <td>{{ i + 1 }}</td>  
                 <td><span class="badge badge-info">{{ item.kode }}</span></td>
                 <td>{{ formatDate(item.kalibrasi) }}</td>
                 <td><strong>{{ item.namaAlat }}</strong></td>

@@ -62,7 +62,14 @@
                 <td>{{ i+1 }}</td>
                 <td class="text-xs">{{ formatDate(r.tanggalRusak) }}</td>
                 <td class="text-xs">{{ formatDate(r.tanggalPerbaikan) }}</td>
-                <td class="text-xs">{{ Array.isArray(r.teknisi) ? r.teknisi.join(', ') : r.teknisi }}</td>
+                <td>
+                  <div class="d-flex" style="flex-wrap:wrap; gap:4px">
+                    <div class="table-teknisi-badge" v-for="tn in (Array.isArray(r.teknisi)?r.teknisi:[r.teknisi])" :key="tn">
+                      <img :src="getTeknisiPhoto(tn)" />
+                      <span>{{ tn.split(',')[0] }}</span>
+                    </div>
+                  </div>
+                </td>
                 <td><strong>{{ r.namaAlat }}</strong><br/><span class="badge badge-info text-xs">{{ r.kategori }}</span></td>
                 <td class="text-xs">{{ r.merk }}/{{ r.tipe }}/{{ r.sn }}</td>
                 <td class="text-xs">{{ r.kondisiAwal }}</td>
@@ -101,7 +108,17 @@
               <div class="detail-row"><div class="detail-label">Tgl Rusak</div><div class="detail-val">{{ formatDate(modalRecord.tanggalRusak) }}</div></div>
               <div class="detail-row"><div class="detail-label">Tgl Perbaikan</div><div class="detail-val">{{ formatDate(modalRecord.tanggalPerbaikan) }}</div></div>
               <div class="detail-row"><div class="detail-label">Pelapor</div><div class="detail-val">{{ modalRecord.namaPelapor }}</div></div>
-              <div class="detail-row"><div class="detail-label">Teknisi</div><div class="detail-val">{{ Array.isArray(modalRecord.teknisi)?modalRecord.teknisi.join(', '):modalRecord.teknisi }}</div></div>
+              <div class="detail-row" style="grid-column:1/-1">
+                <div class="detail-label">Teknisi</div>
+                <div class="detail-val">
+                  <div class="d-flex" style="flex-wrap:wrap; gap:4px; margin-top:4px">
+                    <div class="table-teknisi-badge" v-for="tn in (Array.isArray(modalRecord.teknisi)?modalRecord.teknisi:[modalRecord.teknisi])" :key="tn">
+                      <img :src="getTeknisiPhoto(tn)" />
+                      <span>{{ tn.split(',')[0] }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="detail-row"><div class="detail-label">Ketua Tim</div><div class="detail-val">{{ modalRecord.ketuaTim }}</div></div>
               <div class="detail-row"><div class="detail-label">Tahun Perolehan</div><div class="detail-val">{{ modalRecord.tahunPerolehan }}</div></div>
               <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Kondisi Awal</div><div class="detail-val">{{ modalRecord.kondisiAwal }}</div></div>
@@ -137,9 +154,11 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import { usePerbaikanStore } from '../stores/perbaikanStore'
+import { useTeknisiStore } from '../stores/teknisiStore'
 import { MONTHS } from '../data/masterData'
 
 const store = usePerbaikanStore()
+const teknisiStore = useTeknisiStore()
 const filterYear = ref(null)
 const filterMonth = ref(null)
 const modalRecord = ref(null)
@@ -158,6 +177,11 @@ const thisYearCount = computed(() => store.records.filter(r => new Date(r.tangga
 const filtered = computed(() => store.getFiltered(filterYear.value, filterMonth.value))
 
 function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}) }
+function getTeknisiPhoto(name) {
+  if (!name) return ''
+  const t = teknisiStore.teknisiList.find(x => x.name === name)
+  return t ? t.photo : 'https://ui-avatars.com/api/?name=' + name.split(' ')[0]
+}
 function showDetail(r) { modalRecord.value = r; editMode.value = false }
 function editRecord(r) { modalRecord.value = r; editMode.value = true; Object.assign(editForm, {...r}) }
 function saveEdit() { store.update(modalRecord.value.id, {...editForm}); modalRecord.value = null }

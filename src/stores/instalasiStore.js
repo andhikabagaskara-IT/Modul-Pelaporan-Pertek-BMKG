@@ -8,7 +8,7 @@ export const useInstalasiStore = defineStore('instalasi', () => {
     {
       id: nextId++, kategori: 'AWS Digitalisasi', kodePeralatan: 'ADG-002',
       tanggalInstalasi: '2024-06-01', waktuInstalasi: '09:00',
-      teknisi: ['Ahmad Fauzan, S.T.', 'Cahyo Nugroho, S.Kom.'],
+      teknisi: ['MUHAMMAD RIZZAL FAUZAN, S.Tr.', 'ALFAN ALFARISY, S.Tr.Inst, M.Kom.'],
       ketuaTim: 'Ir. Suharto Wibowo, M.T.',
       koordinatorObs: 'Drs. Hendra Kusuma, M.Si.',
       namaAlat: 'AWS Station Baru', merk: 'Vaisala', tipe: 'WXT520', sn: 'K99012345',

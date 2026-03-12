@@ -34,26 +34,21 @@ export const KONDISI_LIST = ["Baik", "Rusak ringan", "Rusak berat"];
 export const STATUS_ALAT_LIST = ["Aktif", "Non-Aktif"];
 
 export const TEKNISI_LIST = [
-  "Ahmad Fauzan, S.T.",
-  "Budi Santoso, S.T.",
-  "Cahyo Nugroho, S.Kom.",
-  "Dewi Rahmawati, S.T.",
-  "Eko Prasetyo, S.T.",
-  "Fajar Hidayat, S.T.",
-  "Galih Permana, S.Kom.",
-  "Hesti Wahyuni, S.T.",
+  { name: "MOHAMAD ANWAR SYAEFUDIN, S.T., M.Kom.", photo: "/src/assets/img/ANWAR.jpg" },
+  { name: "DENI PRASETYO, S.T.", photo: "/src/assets/img/DENI.jpg" },
+  { name: "ARSY YUDHA PRINANTO, S.Tr., M.T.", photo: "/src/assets/img/YUDHA.jpg" },
+  { name: "SHOWAN BANGKIT SUSENA, S.Tr.Inst", photo: "/src/assets/img/BANGKIT.jpg" },
+  { name: "MUHAMMAD RIZZAL FAUZAN, S.Tr.", photo: "/src/assets/img/RIZZAL.jpg" },
+  { name: "ALFAN ALFARISY, S.Tr.Inst, M.Kom.", photo: "/src/assets/img/ALFAN.jpg" },
+  { name: "ARIF NURKHAMDI, S.Tr.Inst.", photo: "/src/assets/img/KHAMDI.jpg" },
 ];
 
 export const KETUA_TIM_LIST = [
-  "Ir. Suharto Wibowo, M.T.",
-  "Dr. Bambang Setiawan, S.T., M.T.",
-  "Ir. Rudi Hartono, M.Eng.",
+  "MOHAMAD ANWAR SYAEFUDIN, S.T., M.Kom.",
 ];
 
 export const KOORDINATOR_DI_LIST = [
-  "Drs. Agus Supriyanto, M.Si.",
-  "Dr. Lestari Indah, S.Si., M.T.",
-  "Ir. Wawan Hermanto, M.T.",
+  "SHANAS SEPTY PRAYUDA, S.Tr., M.T.",
 ];
 
 export const KOORDINATOR_OBS_LIST = [

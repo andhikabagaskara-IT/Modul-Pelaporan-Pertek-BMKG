@@ -63,7 +63,14 @@
                 <td>{{ formatDate(r.tanggal) }}</td>
                 <td><strong>{{ r.alat }}</strong><br/><span class="badge badge-info text-xs">{{ r.kategori }}</span></td>
                 <td>{{ r.lokasi }}</td>
-                <td class="text-xs">{{ Array.isArray(r.teknisi) ? r.teknisi.join(', ') : r.teknisi }}</td>
+                <td>
+                  <div class="d-flex" style="flex-wrap:wrap; gap:4px">
+                    <div class="table-teknisi-badge" v-for="tn in (Array.isArray(r.teknisi)?r.teknisi:[r.teknisi])" :key="tn">
+                      <img :src="getTeknisiPhoto(tn)" />
+                      <span>{{ tn.split(',')[0] }}</span>
+                    </div>
+                  </div>
+                </td>
                 <td class="text-xs">{{ r.catatan }}</td>
                 <td>
                   <div class="d-flex gap-2" style="gap:4px;flex-wrap:wrap">
@@ -93,7 +100,17 @@
               <div class="detail-row"><div class="detail-label">Kategori</div><div class="detail-val">{{ modalRecord.kategori }}</div></div>
               <div class="detail-row"><div class="detail-label">Alat</div><div class="detail-val">{{ modalRecord.alat }}</div></div>
               <div class="detail-row"><div class="detail-label">Lokasi</div><div class="detail-val">{{ modalRecord.lokasi }}</div></div>
-              <div class="detail-row"><div class="detail-label">Teknisi</div><div class="detail-val">{{ Array.isArray(modalRecord.teknisi) ? modalRecord.teknisi.join(', ') : modalRecord.teknisi }}</div></div>
+              <div class="detail-row" style="grid-column:1/-1">
+                <div class="detail-label">Teknisi</div>
+                <div class="detail-val">
+                  <div class="d-flex" style="flex-wrap:wrap; gap:4px; margin-top:4px">
+                    <div class="table-teknisi-badge" v-for="tn in (Array.isArray(modalRecord.teknisi)?modalRecord.teknisi:[modalRecord.teknisi])" :key="tn">
+                      <img :src="getTeknisiPhoto(tn)" />
+                      <span>{{ tn.split(',')[0] }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="detail-row"><div class="detail-label">Ketua Tim</div><div class="detail-val">{{ modalRecord.ketuaTim }}</div></div>
               <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Catatan</div><div class="detail-val">{{ modalRecord.catatan }}</div></div>
             </div>
@@ -119,9 +136,11 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import { usePemeliharaanStore } from '../stores/pemeliharaanStore'
+import { useTeknisiStore } from '../stores/teknisiStore'
 import { MONTHS } from '../data/masterData'
 
 const store = usePemeliharaanStore()
+const teknisiStore = useTeknisiStore()
 const filterYear = ref(null)
 const filterMonth = ref(null)
 const modalRecord = ref(null)
@@ -142,6 +161,11 @@ const filtered = computed(() => store.getFiltered(filterYear.value, filterMonth.
 
 function formatDate(d) {
   if (!d) return '-'; return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+function getTeknisiPhoto(name) {
+  if (!name) return ''
+  const t = teknisiStore.teknisiList.find(x => x.name === name)
+  return t ? t.photo : 'https://ui-avatars.com/api/?name=' + name.split(' ')[0]
 }
 function showDetail(r) { modalRecord.value = r; editMode.value = false }
 function editRecord(r) {

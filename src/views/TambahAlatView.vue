@@ -8,6 +8,8 @@
       <button class="btn btn-outline" @click="$router.push('/daftar-peralatan')">← Kembali ke Dashboard</button>
     </div>
 
+    <TambahTeknisiModal :show="showTeknisiModal" @close="showTeknisiModal=false" @save="onSaveTeknisi" />
+
     <div v-if="successMsg" class="alert alert-success">✅ {{ successMsg }}</div>
 
     <div class="card">
@@ -101,11 +103,12 @@
 
           <!-- Teknisi Multi-Select -->
           <div class="form-group">
-            <label class="form-label">Teknisi (Pilih 1-5 orang)</label>
+            <label class="form-label">Teknisi (Pilih 1-5 orang) <button type="button" class="btn btn-xs btn-outline" style="margin-left:8px" @click="showTeknisiModal = true">+ Tambah Baru</button></label>
             <div class="check-group">
-              <label class="check-item" :class="{selected: form.teknisi.includes(t)}" v-for="t in TEKNISI_LIST" :key="t">
-                <input type="checkbox" :value="t" v-model="form.teknisi" :disabled="form.teknisi.length >= 5 && !form.teknisi.includes(t)" />
-                {{ t.split(',')[0] }}
+              <label class="check-item" :class="{selected: form.teknisi.includes(t.name)}" v-for="t in teknisiStore.teknisiList" :key="t.name">
+                <input type="checkbox" :value="t.name" v-model="form.teknisi" :disabled="form.teknisi.length >= 5 && !form.teknisi.includes(t.name)" />
+                <img :src="t.photo" class="teknisi-photo" />
+                <span>{{ t.name.split(',')[0] }}</span>
               </label>
             </div>
           </div>
@@ -174,14 +177,23 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePeralatanStore } from '../stores/peralatanStore'
-import { KATEGORI_LIST_WITH_OTHER, SITE_LIST, JENIS_ALAT_LIST, KONDISI_LIST, STATUS_ALAT_LIST, TEKNISI_LIST } from '../data/masterData'
+import { useTeknisiStore } from '../stores/teknisiStore'
+import TambahTeknisiModal from '../components/TambahTeknisiModal.vue'
+import { KATEGORI_LIST_WITH_OTHER, SITE_LIST, JENIS_ALAT_LIST, KONDISI_LIST, STATUS_ALAT_LIST } from '../data/masterData'
 
 const router = useRouter()
 const peralatanStore = usePeralatanStore()
+const teknisiStore = useTeknisiStore()
 const successMsg = ref('')
 const showPC = ref(false)
+const showTeknisiModal = ref(false)
 const customSite = ref(false)
 const errors = reactive({})
+
+function onSaveTeknisi(t) {
+  teknisiStore.addTeknisi(t)
+  showTeknisiModal.value = false
+}
 
 const form = reactive({
   kode: '', kategori: '', site: '', customSiteName: '',

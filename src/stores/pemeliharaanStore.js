@@ -7,14 +7,14 @@ export const usePemeliharaanStore = defineStore('pemeliharaan', () => {
   const records = ref([
     {
       id: nextId++, tanggal: '2024-06-05', alat: 'AWS Station Otomatis',
-      lokasi: 'Taman Alat', teknisi: ['Ahmad Fauzan, S.T.'],
+      lokasi: 'Taman Alat', teknisi: ['MOHAMAD ANWAR SYAEFUDIN, S.T., M.Kom.'],
       ketuaTim: 'Ir. Suharto Wibowo, M.T.', koordinator: 'Drs. Agus Supriyanto, M.Si.',
       kategori: 'AWS Digitalisasi', site: 'Taman Alat',
       catatan: 'Pemeliharaan rutin bulanan, semua kondisi baik.',
     },
     {
       id: nextId++, tanggal: '2024-06-10', alat: 'Radar Cuaca Doppler',
-      lokasi: 'Gedung Observasi', teknisi: ['Budi Santoso, S.T.', 'Dewi Rahmawati, S.T.'],
+      lokasi: 'Gedung Observasi', teknisi: ['DENI PRASETYO, S.T.', 'ARSY YUDHA PRINANTO, S.Tr., M.T.'],
       ketuaTim: 'Dr. Bambang Setiawan, S.T., M.T.', koordinator: 'Dr. Lestari Indah, S.Si., M.T.',
       kategori: 'Radar cuaca', site: 'Gedung Observasi',
       catatan: 'Kalibrasi antenna dan pengecekan receiver.',
