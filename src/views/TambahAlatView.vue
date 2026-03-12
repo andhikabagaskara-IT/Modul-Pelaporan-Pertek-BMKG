@@ -35,12 +35,21 @@
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Site <span class="required">*</span></label>
-              <select class="form-control" v-model="form.site" @change="onSiteChange">
-                <option value="">-- Pilih Site --</option>
-                <option v-for="s in SITE_LIST" :key="s">{{ s }}</option>
-                <option value="__custom__">+ Tambah Site Baru</option>
-              </select>
-              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Masukkan nama site baru..." />
+              <div v-if="availableSites.length > 0" class="check-group" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; max-height:160px; overflow-y:auto">
+                <label v-for="s in availableSites" :key="s" class="check-item-simple" style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+                  <input type="checkbox" :value="s" v-model="form.site" />
+                  <span style="font-size:0.875rem">{{ s }}</span>
+                </label>
+              </div>
+              <div v-else class="text-sm text-muted" style="padding:10px; border:1px dashed #cbd5e1; border-radius:8px">Pilih kategori terlebih dahulu untuk melihat daftar site.</div>
+              <div v-if="errors.site" class="invalid-feedback d-block">{{ errors.site }}</div>
+
+              <div class="mt-2 text-xs">
+                <a href="#" @click.prevent="customSite = !customSite" style="color:#3b82f6; text-decoration:none">
+                  {{ customSite ? 'Batal tambah site khusus' : '+ Tambah Site Khusus' }}
+                </a>
+              </div>
+              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Masukkan nama form site khusus (opsional)..." />
             </div>
             <div class="form-group">
               <label class="form-label">Jenis Alat <span class="required">*</span></label>
@@ -179,7 +188,7 @@ import { useRouter } from 'vue-router'
 import { usePeralatanStore } from '../stores/peralatanStore'
 import { useTeknisiStore } from '../stores/teknisiStore'
 import TambahTeknisiModal from '../components/TambahTeknisiModal.vue'
-import { KATEGORI_LIST_WITH_OTHER, SITE_LIST, JENIS_ALAT_LIST, KONDISI_LIST, STATUS_ALAT_LIST } from '../data/masterData'
+import { KATEGORI_LIST_WITH_OTHER, KATEGORI_SITE_MAP, JENIS_ALAT_LIST, KONDISI_LIST, STATUS_ALAT_LIST } from '../data/masterData'
 
 const router = useRouter()
 const peralatanStore = usePeralatanStore()
@@ -196,22 +205,36 @@ function onSaveTeknisi(t) {
 }
 
 const form = reactive({
-  kode: '', kategori: '', site: '', customSiteName: '',
+  kode: '', kategori: '', site: [], customSiteName: '',
   namaAlat: '', merk: '', tipe: '', sn: '',
   jenis: '', teknisi: [], tanggalInstal: '', pengadaan: '',
   kalibrasi: '', kondisi: 'Baik', status: 'Aktif', keterangan: '',
   pc: { os: '', processor: '', ram: '', rom: '', monitor: '', office: '' }
 })
 
-function onSiteChange() {
-  customSite.value = form.site === '__custom__'
-  if (!customSite.value) form.customSiteName = ''
-}
+import { computed, watch } from 'vue'
+
+const availableSites = computed(() => {
+  if (form.kategori && KATEGORI_SITE_MAP[form.kategori]) {
+    return KATEGORI_SITE_MAP[form.kategori];
+  }
+  return [];
+});
+
+watch(() => form.kategori, (newVal) => {
+  // Auto checklist all available sites for the selected category
+  if (newVal && KATEGORI_SITE_MAP[newVal]) {
+    form.site = [...KATEGORI_SITE_MAP[newVal]];
+  } else {
+    form.site = [];
+  }
+});
 
 function validate() {
   Object.keys(errors).forEach(k => delete errors[k])
   if (!form.kode) errors.kode = 'Kode wajib diisi, tulis (-) jika tidak ada'
   if (!form.kategori) errors.kategori = 'Pilih kategori terlebih dahulu'
+  if (form.site.length === 0 && !form.customSiteName) errors.site = 'Pilih minimal satu site atau tambah site khusus'
   if (!form.namaAlat) errors.namaAlat = 'Nama alat wajib diisi, tulis (-) jika tidak ada'
   if (!form.merk) errors.merk = 'Merek wajib diisi, tulis (-) jika tidak ada'
   if (!form.tipe) errors.tipe = 'Tipe wajib diisi, tulis (-) jika tidak ada'
@@ -221,8 +244,14 @@ function validate() {
 
 function handleSubmit() {
   if (!validate()) return
-  const siteVal = customSite.value ? form.customSiteName : form.site
-  peralatanStore.addAlat({ ...form, site: siteVal, update: new Date().toISOString().slice(0, 10) })
+  
+  // Combine checked sites and custom site if any
+  let finalSites = [...form.site];
+  if (customSite.value && form.customSiteName.trim()) {
+    finalSites.push(form.customSiteName.trim());
+  }
+  
+  peralatanStore.addAlat({ ...form, site: finalSites, update: new Date().toISOString().slice(0, 10) })
   successMsg.value = 'Data peralatan berhasil ditambahkan!'
   setTimeout(() => router.push('/daftar-peralatan'), 1500)
 }

@@ -62,7 +62,7 @@
                 <td>{{ i+1 }}</td>
                 <td>{{ formatDate(r.tanggal) }}</td>
                 <td><strong>{{ r.alat }}</strong><br/><span class="badge badge-info text-xs">{{ r.kategori }}</span></td>
-                <td>{{ r.lokasi }}</td>
+                <td>{{ Array.isArray(r.lokasi) ? r.lokasi.join(', ') : r.lokasi }}</td>
                 <td>
                   <div class="d-flex" style="flex-wrap:wrap; gap:4px">
                     <div class="table-teknisi-badge" v-for="tn in (Array.isArray(r.teknisi)?r.teknisi:[r.teknisi])" :key="tn">
@@ -99,7 +99,7 @@
               <div class="detail-row"><div class="detail-label">Tanggal</div><div class="detail-val">{{ formatDate(modalRecord.tanggal) }}</div></div>
               <div class="detail-row"><div class="detail-label">Kategori</div><div class="detail-val">{{ modalRecord.kategori }}</div></div>
               <div class="detail-row"><div class="detail-label">Alat</div><div class="detail-val">{{ modalRecord.alat }}</div></div>
-              <div class="detail-row"><div class="detail-label">Lokasi</div><div class="detail-val">{{ modalRecord.lokasi }}</div></div>
+              <div class="detail-row"><div class="detail-label">Lokasi</div><div class="detail-val">{{ Array.isArray(modalRecord.lokasi) ? modalRecord.lokasi.join(', ') : modalRecord.lokasi }}</div></div>
               <div class="detail-row" style="grid-column:1/-1">
                 <div class="detail-label">Teknisi</div>
                 <div class="detail-val">

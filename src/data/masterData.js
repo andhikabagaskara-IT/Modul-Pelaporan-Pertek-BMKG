@@ -21,7 +21,27 @@ export const KATEGORI_LIST = [
 
 export const KATEGORI_LIST_WITH_OTHER = [...KATEGORI_LIST, "Lain-lain"];
 
-export const SITE_LIST = ["Taman Alat", "Gedung Observasi"];
+export const KATEGORI_SITE_MAP = {
+  "Radar cuaca": ["Gedung Radar", "Client"],
+  "AWS Digitalisasi": ["Taman Alat", "Gedung Observasi"],
+  "AWOS": ["Runway10", "Runway28", "Runway Middle", "Server", "Client", "Penunjang", "RLIM"],
+  "Sinoptik": ["Gedung Observasi", "Taman Alat"],
+  "LLWAS": ["Site", "Server", "Client"],
+  "Aerologi": ["Gedung Aerologi", "Ruang gas"],
+  "Display cuaca": ["Terminal 1 Bandara Juanda", "Terminal 2 Bandara Juanda", "Terminal Bus Purabaya", "Airnav"],
+  "Aero Visual Weather": ["Ruang Forecaster"],
+  "Server dan Jaringan Komputer": ["Server", "Gedung Observasi", "Forecaster", "Tower ATC Bandara Juanda"],
+  "Elektronik tata usaha": ["Komputer", "Penunjang"],
+  "Elektronik Data dan informasi": ["Komputer", "Penunjang", "CCTV"],
+  "Elektronik observasi": ["Komputer", "Penunjang"],
+  "Elektronik peralatan dan teknis": ["Komputer", "Penunjang", "Printer"],
+  "Elektronik Aerologi": ["Komputer", "Penunjang"],
+  "Elektronik forecaster": ["Komputer", "Penunjang"],
+  "Jaringan listrik": ["Observasi", "BMN", "Tata Usaha"]
+};
+
+// Flatten to get all unique sites for potential global use
+export const SITE_LIST = [...new Set(Object.values(KATEGORI_SITE_MAP).flat())];
 
 export const JENIS_ALAT_LIST = [
   "Teknologi canggih/modern",

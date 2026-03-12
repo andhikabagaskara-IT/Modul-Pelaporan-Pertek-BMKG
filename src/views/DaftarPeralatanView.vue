@@ -55,15 +55,16 @@
     </div>
 
     <!-- Tabs for Sites -->
-    <div class="tab-list">
-      <button class="tab-btn" :class="{active:activeTab==='taman'}" @click="activeTab='taman'">🌿 Taman Alat ({{ tamanData.length }})</button>
-      <button class="tab-btn" :class="{active:activeTab==='gedung'}" @click="activeTab='gedung'">🏢 Gedung Observasi ({{ gedungData.length }})</button>
+    <div class="tab-list d-flex" style="overflow-x:auto; white-space:nowrap; gap:8px">
+      <button v-for="site in availableSites" :key="site" class="tab-btn" :class="{active:activeTab===site}" @click="activeTab=site">
+        📍 {{ site }} ({{ getSiteCount(site) }})
+      </button>
     </div>
 
     <div class="card">
       <div class="card-header">
         <div class="section-title" style="margin:0">
-          {{ activeTab === 'taman' ? '🌿 Taman Alat' : '🏢 Gedung Observasi' }}
+          📍 {{ activeTab }}
         </div>
         <span class="text-sm text-muted">{{ currentData.length }} peralatan</span>
       </div>
@@ -142,13 +143,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePeralatanStore } from '../stores/peralatanStore'
-import { KATEGORI_LIST } from '../data/masterData'
+import { KATEGORI_LIST, KATEGORI_SITE_MAP, SITE_LIST } from '../data/masterData'
 import * as XLSX from 'xlsx'
 
 const peralatanStore = usePeralatanStore()
 const selectedKategori = ref('')
 const search = ref('')
-const activeTab = ref('taman')
+const activeTab = ref(SITE_LIST[0])
 const detailItem = ref(null)
 
 function formatDate(d) {
@@ -164,7 +165,11 @@ function kondisiClass(k) {
 function countStatus(s) { return peralatanStore.peralatan.filter(p => p.status === s).length }
 function countKondisi(k) { return peralatanStore.peralatan.filter(p => p.kondisi === k).length }
 
-function onKategoriChange() {}
+function onKategoriChange() {
+  if (availableSites.value.length > 0 && !availableSites.value.includes(activeTab.value)) {
+    activeTab.value = availableSites.value[0];
+  }
+}
 
 const filteredAll = computed(() => {
   return peralatanStore.peralatan.filter(p => {
@@ -173,16 +178,28 @@ const filteredAll = computed(() => {
     return matchKat && matchSearch
   })
 })
-const tamanData = computed(() => filteredAll.value.filter(p => p.site === 'Taman Alat'))
-const gedungData = computed(() => filteredAll.value.filter(p => p.site === 'Gedung Observasi'))
-const currentData = computed(() => activeTab.value === 'taman' ? tamanData.value : gedungData.value)
+
+const availableSites = computed(() => {
+  if (selectedKategori.value && KATEGORI_SITE_MAP[selectedKategori.value]) {
+    return KATEGORI_SITE_MAP[selectedKategori.value];
+  }
+  return SITE_LIST;
+});
+
+function getSiteCount(site) {
+  return filteredAll.value.filter(p => p.site === site || Array.isArray(p.site) && p.site.includes(site)).length;
+}
+
+const currentData = computed(() => {
+  return filteredAll.value.filter(p => p.site === activeTab.value || Array.isArray(p.site) && p.site.includes(activeTab.value));
+});
 
 function showDetail(item) { detailItem.value = item }
 const detailFields = computed(() => {
   if (!detailItem.value) return {}
   const d = detailItem.value
   return {
-    'Kode Peralatan': d.kode, 'Kategori': d.kategori, 'Site': d.site,
+    'Kode Peralatan': d.kode, 'Kategori': d.kategori, 'Site': Array.isArray(d.site) ? d.site.join(', ') : d.site,
     'Nama Alat': d.namaAlat, 'Merek': d.merk, 'Tipe': d.tipe,
     'Serial Number': d.sn, 'Pengadaan': d.pengadaan,
     'Tanggal Instalasi': formatDate(d.tanggalInstal),
@@ -213,4 +230,9 @@ function exportExcel() {
 .detail-row { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
 .detail-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
 .detail-val { font-size: 0.875rem; color: #1e293b; font-weight: 500; margin-top: 2px; }
+
+/* Custom scrollbar for tab list */
+.tab-list::-webkit-scrollbar { height: 6px; }
+.tab-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.tab-list::-webkit-scrollbar-track { background: transparent; }
 </style>

@@ -15,7 +15,7 @@
         <div class="modal-body">
           <div class="grid-2">
             <div class="detail-row"><div class="detail-label">Kategori</div><div class="detail-val">{{ form.kategori }}</div></div>
-            <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ form.site }}</div></div>
+            <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ Array.isArray(form.site) ? form.site.join(', ') : form.site }}</div></div>
             <div class="detail-row"><div class="detail-label">Nama Alat</div><div class="detail-val">{{ form.namaAlat }}</div></div>
             <div class="detail-row"><div class="detail-label">Tgl Rusak</div><div class="detail-val">{{ formatDate(form.tanggalRusak) }}</div></div>
             <div class="detail-row"><div class="detail-label">Tgl Perbaikan</div><div class="detail-val">{{ formatDate(form.tanggalPerbaikan) }}</div></div>
@@ -66,12 +66,20 @@
             </div>
             <div class="form-group">
               <label class="form-label">Site <span class="required">*</span></label>
-              <select class="form-control" v-model="form.site" @change="onSiteChange">
-                <option value="">-- Pilih Site --</option>
-                <option v-for="s in SITE_LIST" :key="s">{{ s }}</option>
-                <option value="__custom__">+ Tambah Site Baru</option>
-              </select>
-              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Nama site baru..." />
+              <div v-if="availableSites.length > 0" class="check-group" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; max-height:160px; overflow-y:auto">
+                <label v-for="s in availableSites" :key="s" class="check-item-simple" style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+                  <input type="checkbox" :value="s" v-model="form.site" />
+                  <span style="font-size:0.875rem">{{ s }}</span>
+                </label>
+              </div>
+              <div v-else class="text-sm text-muted" style="padding:10px; border:1px dashed #cbd5e1; border-radius:8px">Pilih kategori terlebih dahulu untuk melihat daftar site.</div>
+
+              <div class="mt-2 text-xs">
+                <a href="#" @click.prevent="customSite = !customSite" style="color:#3b82f6; text-decoration:none">
+                  {{ customSite ? 'Batal tambah site khusus' : '+ Tambah Site Khusus' }}
+                </a>
+              </div>
+              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Nama site khusus (opsional)..." />
             </div>
           </div>
 
@@ -155,12 +163,12 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePerbaikanStore } from '../stores/perbaikanStore'
 import { useTeknisiStore } from '../stores/teknisiStore'
 import TambahTeknisiModal from '../components/TambahTeknisiModal.vue'
-import { KATEGORI_LIST, SITE_LIST, KETUA_TIM_LIST } from '../data/masterData'
+import { KATEGORI_LIST, KATEGORI_SITE_MAP, KETUA_TIM_LIST } from '../data/masterData'
 
 const router = useRouter()
 const store = usePerbaikanStore()
@@ -177,19 +185,33 @@ function onSaveTeknisi(t) {
 }
 
 const form = reactive({
-  kategori: '', site: '', customSiteName: '',
+  kategori: '', site: [], customSiteName: '',
   namaAlat: '', namaPelapor: '', tanggalRusak: '', tanggalPerbaikan: '',
   teknisi: [], ketuaTim: '', kondisiAwal: '', tindakan: '', kondisiAkhir: '',
   catatan: '', fotoName: '', fotoPreview: null, fotoFile: null, tahunPerolehan: '',
   merk: '-', tipe: '-', sn: '-',
 })
 
+const availableSites = computed(() => {
+  if (form.kategori && KATEGORI_SITE_MAP[form.kategori]) {
+    return KATEGORI_SITE_MAP[form.kategori];
+  }
+  return [];
+});
+
+watch(() => form.kategori, (newVal) => {
+  if (newVal && KATEGORI_SITE_MAP[newVal]) {
+    form.site = [...KATEGORI_SITE_MAP[newVal]];
+  } else {
+    form.site = [];
+  }
+});
+
 function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}) }
 function getTeknisiPhoto(name) {
   const t = teknisiStore.teknisiList.find(x => x.name === name)
   return t ? t.photo : 'https://ui-avatars.com/api/?name=' + name.split(' ')[0]
 }
-function onSiteChange() { customSite.value = form.site === '__custom__' }
 function onFileChange(e) { const f = e.target.files[0]; if (f) processFile(f) }
 function onDrop(e) { const f = e.dataTransfer.files[0]; if (f) processFile(f) }
 function processFile(f) {
@@ -202,8 +224,10 @@ function processFile(f) {
 function clearFoto() { form.fotoName=''; form.fotoPreview=null; form.fotoFile=null; if(fileRef.value) fileRef.value.value='' }
 function handlePreview() { showPreview.value = true }
 function simpan() {
-  const siteVal = customSite.value ? form.customSiteName : form.site
-  store.add({ ...form, site: siteVal, foto: form.fotoPreview })
+  const finalSites = [...form.site]
+  if (customSite.value && form.customSiteName.trim()) finalSites.push(form.customSiteName.trim())
+
+  store.add({ ...form, site: finalSites, foto: form.fotoPreview })
   showPreview.value = false
   successMsg.value = 'Data perbaikan berhasil disimpan!'
   setTimeout(() => router.push('/perbaikan'), 1500)

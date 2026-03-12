@@ -24,12 +24,21 @@
             </div>
             <div class="form-group">
               <label class="form-label">Site <span class="required">*</span></label>
-              <select class="form-control" v-model="form.site" @change="onSiteChange">
-                <option value="">-- Pilih Site --</option>
-                <option v-for="s in SITE_LIST" :key="s">{{ s }}</option>
-                <option value="__custom__">+ Tambah Site Baru</option>
-              </select>
-              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Nama site baru..." />
+              <div v-if="availableSites.length > 0" class="check-group" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; max-height:160px; overflow-y:auto">
+                <label v-for="s in availableSites" :key="s" class="check-item-simple" style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+                  <input type="checkbox" :value="s" v-model="form.site" />
+                  <span style="font-size:0.875rem">{{ s }}</span>
+                </label>
+              </div>
+              <div v-else class="text-sm text-muted" style="padding:10px; border:1px dashed #cbd5e1; border-radius:8px">Pilih kategori terlebih dahulu untuk melihat daftar site.</div>
+              <div v-if="errors.site" class="invalid-feedback d-block">{{ errors.site }}</div>
+
+              <div class="mt-2 text-xs">
+                <a href="#" @click.prevent="customSite = !customSite" style="color:#3b82f6; text-decoration:none">
+                  {{ customSite ? 'Batal tambah site khusus' : '+ Tambah Site Khusus' }}
+                </a>
+              </div>
+              <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Nama site khusus (opsional)..." />
             </div>
           </div>
 
@@ -84,9 +93,9 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { KATEGORI_LIST_WITH_OTHER, SITE_LIST } from '../data/masterData'
+import { KATEGORI_LIST_WITH_OTHER, KATEGORI_SITE_MAP } from '../data/masterData'
 
 const router = useRouter()
 const successMsg = ref('')
@@ -95,19 +104,31 @@ const fileRef = ref(null)
 const errors = reactive({})
 
 const form = reactive({
-  kategori: '', site: '', customSiteName: '',
+  kategori: '', site: [], customSiteName: '',
   namaAlat: '', tanggalKerusakan: '',
   kondisiAkhir: '', keterangan: '',
   fotoName: '', fotoPreview: null, fotoFile: null,
 })
 
-function onSiteChange() {
-  customSite.value = form.site === '__custom__'
-}
+const availableSites = computed(() => {
+  if (form.kategori && KATEGORI_SITE_MAP[form.kategori]) {
+    return KATEGORI_SITE_MAP[form.kategori];
+  }
+  return [];
+});
+
+watch(() => form.kategori, (newVal) => {
+  if (newVal && KATEGORI_SITE_MAP[newVal]) {
+    form.site = [...KATEGORI_SITE_MAP[newVal]];
+  } else {
+    form.site = [];
+  }
+});
 
 function validate() {
   Object.keys(errors).forEach(k => delete errors[k])
   if (!form.namaAlat) errors.namaAlat = 'Nama alat wajib diisi, tulis (-) jika tidak ada'
+  if (form.site.length === 0 && !form.customSiteName) errors.site = 'Pilih minimal satu site atau tambah site khusus'
   return Object.keys(errors).length === 0
 }
 

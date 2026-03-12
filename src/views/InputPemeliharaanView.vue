@@ -16,7 +16,7 @@
           <div class="grid-2">
             <div class="detail-row"><div class="detail-label">Tanggal</div><div class="detail-val">{{ formatDate(form.tanggal) }}</div></div>
             <div class="detail-row"><div class="detail-label">Kategori</div><div class="detail-val">{{ form.kategori }}</div></div>
-            <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ form.site }}</div></div>
+            <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ Array.isArray(form.site) ? form.site.join(', ') : form.site }}</div></div>
             <div class="detail-row" style="grid-column:1/-1"><div class="detail-label">Teknisi</div>
               <div class="detail-val">
                 <div class="d-flex gap-2" style="flex-wrap:wrap; margin-top:6px">
@@ -64,11 +64,20 @@
           <!-- Site Checkbox -->
           <div class="form-group">
             <label class="form-label">Site <span class="required">*</span></label>
-            <div class="check-group">
-              <label class="check-item" :class="{selected: form.site===s}" v-for="s in SITE_LIST" :key="s" @click="form.site=s">
-                <input type="radio" :value="s" v-model="form.site" /> {{ s }}
+            <div v-if="availableSites.length > 0" class="check-group" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; max-height:160px; overflow-y:auto">
+              <label v-for="s in availableSites" :key="s" class="check-item-simple" style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+                <input type="checkbox" :value="s" v-model="form.site" />
+                <span style="font-size:0.875rem">{{ s }}</span>
               </label>
             </div>
+            <div v-else class="text-sm text-muted" style="padding:10px; border:1px dashed #cbd5e1; border-radius:8px">Pilih kategori terlebih dahulu untuk melihat daftar site.</div>
+
+            <div class="mt-2 text-xs">
+              <a href="#" @click.prevent="customSite = !customSite" style="color:#3b82f6; text-decoration:none">
+                {{ customSite ? 'Batal tambah site khusus' : '+ Tambah Site Khusus' }}
+              </a>
+            </div>
+            <input v-if="customSite" class="form-control mt-1" v-model="form.customSiteName" placeholder="Nama site khusus (opsional)..." />
           </div>
 
           <!-- Teknisi -->
@@ -116,12 +125,12 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePemeliharaanStore } from '../stores/pemeliharaanStore'
 import { useTeknisiStore } from '../stores/teknisiStore'
 import TambahTeknisiModal from '../components/TambahTeknisiModal.vue'
-import { KATEGORI_LIST, SITE_LIST, KETUA_TIM_LIST, KOORDINATOR_DI_LIST } from '../data/masterData'
+import { KATEGORI_LIST, KATEGORI_SITE_MAP, KETUA_TIM_LIST, KOORDINATOR_DI_LIST } from '../data/masterData'
 
 const router = useRouter()
 const store = usePemeliharaanStore()
@@ -129,11 +138,27 @@ const teknisiStore = useTeknisiStore()
 const showPreview = ref(false)
 const showTeknisiModal = ref(false)
 const successMsg = ref('')
+const customSite = ref(false)
 
 const form = reactive({
-  tanggal: '', kategori: '', site: '', teknisi: [],
+  tanggal: '', kategori: '', site: [], customSiteName: '', teknisi: [],
   ketuaTim: '', koordinator: '', catatan: '',
 })
+
+const availableSites = computed(() => {
+  if (form.kategori && KATEGORI_SITE_MAP[form.kategori]) {
+    return KATEGORI_SITE_MAP[form.kategori];
+  }
+  return [];
+});
+
+watch(() => form.kategori, (newVal) => {
+  if (newVal && KATEGORI_SITE_MAP[newVal]) {
+    form.site = [...KATEGORI_SITE_MAP[newVal]];
+  } else {
+    form.site = [];
+  }
+});
 
 function onSaveTeknisi(t) {
   teknisiStore.addTeknisi(t)
@@ -150,10 +175,13 @@ function getTeknisiPhoto(name) {
 }
 function handlePreview() { showPreview.value = true }
 function simpan() {
+  const finalSites = [...form.site]
+  if (customSite.value && form.customSiteName.trim()) finalSites.push(form.customSiteName.trim())
+
   store.add({
     ...form,
     alat: form.kategori,
-    lokasi: form.site,
+    lokasi: finalSites,
   })
   showPreview.value = false
   successMsg.value = 'Data pemeliharaan berhasil disimpan!'

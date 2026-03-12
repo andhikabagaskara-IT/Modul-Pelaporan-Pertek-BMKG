@@ -102,7 +102,7 @@
           <div v-if="!editMode">
             <div class="grid-2">
               <div class="detail-row"><div class="detail-label">Kategori</div><div class="detail-val">{{ modalRecord.kategori }}</div></div>
-              <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ modalRecord.site }}</div></div>
+              <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">{{ Array.isArray(modalRecord.site) ? modalRecord.site.join(', ') : modalRecord.site }}</div></div>
               <div class="detail-row"><div class="detail-label">Nama Alat</div><div class="detail-val">{{ modalRecord.namaAlat }}</div></div>
               <div class="detail-row"><div class="detail-label">Merk/Tipe/SN</div><div class="detail-val">{{ modalRecord.merk }}/{{ modalRecord.tipe }}/{{ modalRecord.sn }}</div></div>
               <div class="detail-row"><div class="detail-label">Tgl Rusak</div><div class="detail-val">{{ formatDate(modalRecord.tanggalRusak) }}</div></div>
