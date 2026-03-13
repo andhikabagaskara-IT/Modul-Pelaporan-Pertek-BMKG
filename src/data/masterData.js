@@ -72,9 +72,7 @@ export const KOORDINATOR_DI_LIST = [
 ];
 
 export const KOORDINATOR_OBS_LIST = [
-  "Drs. Hendra Kusuma, M.Si.",
-  "Dr. Siti Nurjanah, S.Si., M.T.",
-  "Ir. Joko Susilo, M.Met.",
+  "ANDRIE WIJAYA, S.Tr.Met",
 ];
 
 export const KODE_DINAS = [

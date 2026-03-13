@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 
 const routes = [
-  { path: '/', redirect: '/login' },
+  { path: '/', name: 'Dashboard', component: () => import('../views/DashboardView.vue') },
   { path: '/login', name: 'Login', component: () => import('../views/LoginView.vue'), meta: { public: true } },
   { path: '/daftar-peralatan', name: 'DaftarPeralatan', component: () => import('../views/DaftarPeralatanView.vue') },
   { path: '/daftar-peralatan/tambah', name: 'TambahAlat', component: () => import('../views/TambahAlatView.vue') },
@@ -27,7 +27,7 @@ router.beforeEach((to) => {
     return { name: 'Login' }
   }
   if (to.name === 'Login' && auth.isLoggedIn) {
-    return { name: 'DaftarPeralatan' }
+    return { name: 'Dashboard' }
   }
 })
 

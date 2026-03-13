@@ -136,7 +136,7 @@ async function handleLogin() {
   await new Promise(r => setTimeout(r, 700))
   const ok = authStore.login(email.value, password.value)
   if (ok) {
-    router.push('/daftar-peralatan')
+    router.push('/')
   } else {
     errorMsg.value = 'Email atau password salah. Coba lagi.'
   }
