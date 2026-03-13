@@ -1,6 +1,9 @@
 <template>
   <header class="app-header">
     <div class="header-left">
+      <button class="menu-toggle-btn" @click="uiStore.toggleSidebar()">
+        ☰
+      </button>
       <div class="breadcrumb">
         <span class="breadcrumb-home">🏠</span>
         <span class="breadcrumb-sep">›</span>
@@ -43,9 +46,11 @@
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useUiStore } from '../stores/uiStore'
 import axios from 'axios'
 
 const authStore = useAuthStore()
+const uiStore = useUiStore()
 const route = useRoute()
 const router = useRouter()
 const menuOpen = ref(false)
@@ -162,6 +167,17 @@ onUnmounted(() => {
   z-index: 50;
   box-shadow: 0 2px 12px rgba(30,64,175,0.07);
 }
+.menu-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #1e3a8a;
+  cursor: pointer;
+  padding: 4px;
+  margin-right: 12px;
+}
+.header-left { display: flex; align-items: center; }
 .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
 .breadcrumb-home { font-size: 1rem; }
 .breadcrumb-sep { color: #94a3b8; }
@@ -217,4 +233,31 @@ onUnmounted(() => {
   transition: background 0.15s; cursor: pointer; font-weight: 500;
 }
 .dropdown-item:hover { background: #fef2f2; }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+    height: 60px;
+  }
+  .menu-toggle-btn {
+    display: block;
+  }
+  .breadcrumb {
+    display: none; /* Hide breadcrumb on mobile to save space */
+  }
+  .header-date {
+    display: none; /* Hide date on mobile */
+  }
+  .weather-info {
+    display: none; /* Show only icon and temp, hide description to save space, or just hide info */
+  }
+  .weather-widget {
+    padding: 4px 10px;
+  }
+  .user-info {
+    display: none; /* Hide user name/role */
+  }
+  .header-right { margin-left: auto; gap: 12px; }
+}
 </style>

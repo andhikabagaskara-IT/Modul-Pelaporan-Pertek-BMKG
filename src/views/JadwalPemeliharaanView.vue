@@ -30,17 +30,21 @@
         <div class="section-title" style="margin:0">📆 {{ MONTHS[currentMonth] }} {{ currentYear }}</div>
       </div>
       <div class="card-body">
-        <!-- Day Headers -->
-        <div class="calendar-grid" style="margin-bottom:6px">
-          <div class="cal-day-header" v-for="d in DAYS_SHORT" :key="d">{{ d }}</div>
-        </div>
-        <!-- Day Cells -->
-        <div class="calendar-grid">
-          <div v-for="(cell, i) in calendarCells" :key="i"
-            class="cal-day" :class="{today: cell.isToday, 'other-month': !cell.currentMonth}">
-            <div class="cal-date">{{ cell.day }}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">
-              <span v-for="kode in cell.codes" :key="kode" class="badge-kode" :title="getKodeLabel(kode)">{{ kode }}</span>
+        <div class="calendar-wrapper" style="overflow-x: auto; padding-bottom: 8px;">
+          <div style="min-width: 600px;">
+            <!-- Day Headers -->
+            <div class="calendar-grid" style="margin-bottom:6px">
+              <div class="cal-day-header" v-for="d in DAYS_SHORT" :key="d">{{ d }}</div>
+            </div>
+            <!-- Day Cells -->
+            <div class="calendar-grid">
+              <div v-for="(cell, i) in calendarCells" :key="i"
+                class="cal-day" :class="{today: cell.isToday, 'other-month': !cell.currentMonth}">
+                <div class="cal-date">{{ cell.day }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">
+                  <span v-for="kode in cell.codes" :key="kode" class="badge-kode" :title="getKodeLabel(kode)">{{ kode }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

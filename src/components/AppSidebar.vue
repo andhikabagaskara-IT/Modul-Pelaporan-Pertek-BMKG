@@ -1,11 +1,12 @@
 <template>
-  <aside class="sidebar" :class="{ collapsed }">
+  <div class="sidebar-overlay" v-if="uiStore.sidebarOpen" @click="uiStore.closeSidebar()"></div>
+  <aside class="sidebar" :class="{ collapsed, 'mobile-open': uiStore.sidebarOpen }">
     <div class="sidebar-logo">
       <img src="../assets/img/bmkg.png" alt="BMKG Logo" class="img-logo" />
       <transition name="fade">
         <div v-if="!collapsed" class="logo-text">
           <div class="logo-title">BMKG</div>
-          <div class="logo-sub">Sistem Pelaporan</div>
+          <div class="logo-sub">Support Engineering</div>
         </div>
       </transition>
       <button class="collapse-btn" @click="collapsed = !collapsed">
@@ -15,7 +16,8 @@
 
     <nav class="sidebar-nav">
       <router-link v-for="item in navItems" :key="item.to"
-        :to="item.to" class="nav-item" :class="{ 'active': isActive(item.to) && item.to !== '/', 'dashboard-active': item.to === '/' && route.path === '/' }">
+        :to="item.to" class="nav-item" :class="{ 'active': isActive(item.to) && item.to !== '/', 'dashboard-active': item.to === '/' && route.path === '/' }"
+        @click="uiStore.closeSidebar()">
         <span class="nav-icon">{{ item.icon }}</span>
         <transition name="fade">
           <span v-if="!collapsed" class="nav-label">{{ item.label }}</span>
@@ -33,7 +35,7 @@
         </transition>
       </button>
       <transition name="fade">
-        <div v-if="!collapsed" class="sidebar-version">v1.0.0 · BMKG 2025</div>
+        <div v-if="!collapsed" class="sidebar-version">IT Engineer Pertek ©2026</div>
       </transition>
     </div>
   </aside>
@@ -43,11 +45,13 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { useUiStore } from '../stores/uiStore'
 
 const collapsed = ref(false)
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const uiStore = useUiStore()
 
 const navItems = [
   { to: '/', icon: '📊', label: 'Dashboard' },
@@ -238,5 +242,32 @@ function handleLogout() {
   font-size: 0.68rem;
   color: rgba(255,255,255,0.25);
   margin-top: 8px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    width: 260px !important;
+    z-index: 1000;
+    border-radius: 0;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sidebar.mobile-open {
+    left: 0;
+  }
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+  .collapse-btn {
+    display: none;
+  }
 }
 </style>

@@ -264,4 +264,11 @@ const chartOptionsLine = {
   box-shadow: 0 20px 40px rgba(0,0,0,0.12);
   z-index: 10;
 }
+
+/* Mobile Settings */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
